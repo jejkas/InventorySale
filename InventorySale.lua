@@ -1,6 +1,6 @@
 SLASH_IS1 = "/IS"
 
-ISale_Ads = "\n\n\nAutomatic inventory -> BBCode script by rexas (Emerald Dream). Download at http://rexas.net/wow";
+ISale_Ads = "\n\n\nAutomatic inventory -> BBCode script by rexas (Emerald Dream). Download at http://rexas.net/wow or https://github.com/jejkas/InventorySale";
 
 SlashCmdList["IS"] = function(args)
 	if ISaleFrame:IsShown() then
@@ -72,13 +72,9 @@ end;
 
 
 function ISale_OnLoad()
-	printDebug("test");
 end;
 
 function ISale_eventHandler()
-	if event == "ENTER_WORLD" and arg1 == "Vote" then
-		printDebug("test");
-	end;
 end
 
 -- Event stuff
