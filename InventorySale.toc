@@ -2,6 +2,6 @@
 ## Title: InventorySale
 ## Author: rexas (rexas@g33k.se)
 ## Notes: Vote
-## SavedVariablesPerCharacter: ISale_Settings
+## SavedVariables: ISale_ItemList
 InventorySale.lua
 InventorySale.xml

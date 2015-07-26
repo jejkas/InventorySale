@@ -1,13 +1,14 @@
 SLASH_IS1 = "/IS"
 
-ISale_Ads = "\n\n\nAutomatic inventory -> BBCode script by rexas (Emerald Dream). Download at http://rexas.net/wow or https://github.com/jejkas/InventorySale";
+ISale_Ads = "";--"\n\n\nAutomatic inventory -> BBCode script by rexas (Emerald Dream). Download at http://rexas.net/wow or https://github.com/jejkas/InventorySale";
 
 SlashCmdList["IS"] = function(args)
 	if ISaleFrame:IsShown() then
 		ISaleFrame:Hide();
 	else
 		ISaleFrame:Show();
-	end	
+		Isale_text:SetText(ISale_GetBBCode());
+	end
 end
 
 ISaleScriptFrame = CreateFrame("FRAME", "ISaleScriptFrame");
@@ -16,7 +17,6 @@ end
 
 function ISale_Run()
 	local str = "";
-	local itemArr = {};
 	
 	for bag = -1,11 do
 		for slot = 1,GetContainerNumSlots(bag) do
@@ -27,45 +27,54 @@ function ISale_Run()
 				--local found, _, itemString = string.find(item, "^|%x+|Hitem\:(.+)\:%[.+%]");
 				local a, b, color, d, name = string.find(item, "|c(%x+)|Hitem:(%d+:%d+:%d+:%d+)|h%[(.-)%]|h|r")
 				color = string.sub(color,3);
-				local id = strsplit(":",d);
+				local id = ISale_strsplit(":",d);
 				id = id[1];
 				
 				if name ~= "Hearthstone"
 				then
 					local r, g, b, hex = GetItemQualityColor(0);
 					--printDebug(a .. " - " .. b .. " - " .. color .. " - " .. id .. " - " .. name .. " x " .. itemCount);
-					if type(itemArr[name]) ~= "table"
+					if type(ISale_ItemList[name]) ~= "table"
 					then
-						itemArr[name] = {};
-						itemArr[name]["amount"] = 0;
+						ISale_ItemList[name] = {};
+						ISale_ItemList[name]["amount"] = 0;
 					end;
-					itemArr[name]["id"] = id;
-					itemArr[name]["name"] = name;
+					ISale_ItemList[name]["id"] = id;
+					ISale_ItemList[name]["name"] = name;
 					if(color == "ffffff")
 					then
 						color = "aabbcc"
 					end;
-					itemArr[name]["color"] = color;
-					itemArr[name]["amount"] = itemArr[name]["amount"] + itemCount;
+					ISale_ItemList[name]["color"] = color;
+					ISale_ItemList[name]["amount"] = ISale_ItemList[name]["amount"] + itemCount;
 				end;
 			end
 		end
 	end
 	--printArray(itemArr);
-	for id, line in pairsByKeys(itemArr)
-	do
-		str = str .. "[url=\"http://db.vanillagaming.org/?item=".. itemArr[id]["id"] .."\"][color=#"..itemArr[id]["color"].."][".. itemArr[id]["name"] .."][/color][/url] x " .. itemArr[id]["amount"] .. "\n";
-	end
-	Isale_text:SetText(str..ISale_Ads);
 end;
 
 
 
+function ISale_GetBBCode()
+	local str = "";
+	if ISale_ItemList
+	then
+		for id, line in pairsByKeys(ISale_ItemList)
+		do
+			str = str .. "[url=\"http://db.vanillagaming.org/?item=".. ISale_ItemList[id]["id"] .."\"][color=#"..ISale_ItemList[id]["color"].."][".. ISale_ItemList[id]["name"] .."][/color][/url] x " .. ISale_ItemList[id]["amount"] .. "\n";
+		end
+	end
+	return str;
+end
 
 
 
 
 
+function ISale_ResetData()
+	ISale_ItemList = {};
+end
 
 
 
@@ -75,6 +84,14 @@ function ISale_OnLoad()
 end;
 
 function ISale_eventHandler()
+	if event == "ADDON_LOADED" and arg1 == "InventorySale"
+	then
+		if ISale_ItemList == nil or not ISale_ItemList
+		then
+			ISale_ItemList = {};
+		end
+	end
+	
 end
 
 -- Event stuff
@@ -83,6 +100,7 @@ ISaleScriptFrame:SetScript("OnUpdate", ISale_OnUpdateEvent);
 ISaleScriptFrame:SetScript("OnEvent", ISale_eventHandler);
 ISaleScriptFrame:RegisterEvent("ENTER_WORLD");
 ISaleScriptFrame:RegisterEvent("CHAT_MSG_RAID_LEADER");
+ISaleScriptFrame:RegisterEvent("ADDON_LOADED");
 
 -- Message stuff
 
@@ -109,7 +127,7 @@ function printArray(arr)
 	end
 end;
 
-function strsplit(sep,str)
+function ISale_strsplit(sep,str)
 	local arr = {}
 	local tmp = "";
 	
